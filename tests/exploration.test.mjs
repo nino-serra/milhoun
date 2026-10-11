@@ -1,0 +1,13 @@
+import assert from 'node:assert/strict';
+import * as T from '../dist/vendor/three.module.js';
+import {height,ISLAND_RADIUS} from '../dist/island.js';
+import {normalizeExploration,collectSecret,incubate,tickIncubation,feedBaby,growBaby,hiddenTreasures,secretNests,landmarks,buildSecrets} from '../dist/exploration.js';
+import {GROWTH_SECONDS} from '../dist/dinosaurs.js';
+const s=normalizeExploration({},[1],[5]);assert.deepEqual(s.seen,[1,5]);assert.deepEqual(s.hatched,['old-1']);
+const inv={gems:0,nest:1,berries:2};assert.equal(collectSecret(s,'crystal',inv),8);assert.equal(collectSecret(JSON.parse(JSON.stringify(s)),'crystal',inv),false);assert.equal(inv.gems,8);
+assert.equal(incubate(s,'old-1',inv),'hatched');assert.equal(incubate(s,'nest-cave',inv),'started');assert.equal(inv.nest,0);assert.equal(incubate(s,'nest-cave',inv),'waiting');tickIncubation(s,20);const restored=normalizeExploration(JSON.parse(JSON.stringify(s)),[1,2]);assert.equal(restored.incubating['nest-cave'],25);assert.equal(restored.hatched.includes('old-2'),false);tickIncubation(restored,30);assert.equal(incubate(restored,'nest-cave',inv),'ready');assert.equal(incubate(restored,'nest-ruins',inv),'empty');
+const baby={baby:true,age:0,fullness:0};growBaby(baby,4);assert.equal(baby.age,1);assert.equal(feedBaby(baby,inv),'fed');assert.equal(inv.berries,1);assert.equal(feedBaby(baby,inv),'full');assert.equal(inv.berries,1);growBaby(baby,4);assert.equal(baby.age,5);baby.age=GROWTH_SECONDS-1;assert.equal(growBaby(baby,4),true);assert.equal(baby.age,GROWTH_SECONDS);
+for(const p of [...hiddenTreasures,...secretNests,...landmarks]){assert.ok(height(p.x,p.z)>=0,JSON.stringify(p));assert.ok(Math.hypot(p.x*.95,p.z)<ISLAND_RADIUS);}
+const scene=new T.Scene(),walls=new Map(),key=(x,y,z)=>[x,y,z].join(',');const secrets=buildSecrets({scene,state:s,ground:(x,z)=>height(x,z)+.5,add:(x,y,z,type)=>walls.set(key(x,y,z),{x,y,z,type})});assert.equal(secrets.chests.length,hiddenTreasures.length);assert.equal(secrets.chests.find(c=>c.id==='crystal').g.visible,false);for(let z=-5;z<=4;z++)assert.equal(walls.has(key(-57,3,z)),false,'Cave passage blocked');assert.ok(walls.has(key(-62,5,0)));secrets.update(123);scene.updateMatrixWorld(true);scene.traverse(o=>assert.ok(o.matrixWorld.elements.every(Number.isFinite)));
+for(const t of [...hiddenTreasures,...secretNests])assert.equal([...walls.values()].some(b=>b.x===t.x&&b.z===t.z),false,'A nest or treasure was blocked by new scenery');
+console.log('PASS: old egg saves migrate once, separate nests, timed incubation survives reload, unique treasures, feeding and bounded growth, accessible new sites and cave passage.');

@@ -1,0 +1,7 @@
+import assert from 'node:assert/strict';
+import {normalizePuzzle,ignitePuzzle,claimPuzzle} from '../dist/fire-puzzle.js';
+import {normalizeJourney} from '../dist/journey.js';
+import {companionMood,animateCompanion} from '../dist/expressions.js';
+import * as T from '../dist/vendor/three.module.js';
+const p=normalizePuzzle({lit:[0,0,9]}),targets=[{x:0,z:-2},{x:2,z:0},{x:0,z:2}],pos={x:0,z:0};assert.deepEqual(p.lit,[0]);assert.equal(ignitePuzzle(p,targets,pos,0,()=>true),false);assert.equal(ignitePuzzle(p,targets,pos,-Math.PI/2,()=>false),false);assert.equal(ignitePuzzle(p,targets,pos,-Math.PI/2,()=>true),true);const inv={gems:0};assert.equal(claimPuzzle(p,inv),false);assert.equal(ignitePuzzle(p,targets,pos,Math.PI,()=>true),true);assert.equal(claimPuzzle(p,inv),true);assert.equal(claimPuzzle(p,inv),false);assert.equal(inv.gems,25);assert.deepEqual(normalizeJourney({puzzle:p}).puzzle,p);
+const d={tame:true,order:'stay',g:new T.Group(),legs:[]};assert.equal(companionMood(d,0,15,false,true),'sleep');assert.equal(companionMood(d,1,2,false,true),'greet');assert.equal(d.greet,true);d.petUntil=5;assert.equal(companionMood(d,2,2,false,true),'pet');animateCompanion(d,2,'pet');assert.notEqual(d.g.rotation.z,0);animateCompanion(d,6,'awake');assert.equal(d.g.rotation.z,0);assert.equal(companionMood(d,6,2,true,true),'awake');console.log('PASS expressions, reunion, sleep, puzzle facing/obstacles, stable progress and unique prize');

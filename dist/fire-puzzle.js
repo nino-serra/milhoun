@@ -1,0 +1,3 @@
+export function normalizePuzzle(v){return {lit:[...new Set((Array.isArray(v?.lit)?v.lit:[]).filter(i=>Number.isInteger(i)&&i>=0&&i<3))],claimed:v?.claimed===true};}
+export function ignitePuzzle(state,targets,pos,yaw,clear){let changed=false;targets.forEach((t,i)=>{const dx=t.x-pos.x,dz=t.z-pos.z,n=Math.hypot(dx,dz);if(!state.lit.includes(i)&&n<5&&n>.1&&(-Math.sin(yaw)*dx-Math.cos(yaw)*dz)/n>.8&&clear(pos,t)){state.lit.push(i);changed=true;}});return changed;}
+export function claimPuzzle(state,inv){if(state.lit.length!==3||state.claimed)return false;state.claimed=true;inv.gems=(inv.gems||0)+25;return true;}

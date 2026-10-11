@@ -1,0 +1,16 @@
+import assert from 'node:assert/strict';
+import * as T from '../dist/vendor/three.module.js';
+import {canUseAbility,normalizeAbilities,sprintState,activateSprint,isSprinting,mountSpeed,spinoHeight,currentAllows,claimAbilityTreasure,currentZone,rockPassage} from '../dist/abilities.js';
+import {createAbilityWorld} from '../dist/ability-world.js';
+import {height} from '../dist/island.js';
+import {diveZone,seabed} from '../dist/marine.js';
+const raptor={id:'r1',index:9,tame:true},spino={id:'s1',index:4,tame:true},trike={id:'t1',index:0,tame:true};
+assert.equal(canUseAbility({...trike,baby:true},0),false);assert.equal(canUseAbility({...trike,tame:false},0),false);
+const sprint=sprintState();assert.equal(activateSprint(sprint,{...raptor,baby:true},0),false);assert.ok(activateSprint(sprint,raptor,10));assert.equal(mountSpeed(raptor,false,sprint,12),10);assert.equal(isSprinting(sprint,{...raptor,id:'r2'},12),false);assert.equal(mountSpeed(trike,false,sprint,12),6);assert.equal(activateSprint(sprint,raptor,14),false);assert.equal(isSprinting(sprint,raptor,15),false);assert.equal(activateSprint(sprint,raptor,21),false);assert.ok(activateSprint(sprint,raptor,22));
+assert.equal(mountSpeed(spino,true,sprint,30),6.5);let y=.4;for(let i=0;i<200;i++)y=spinoHeight(y,-9,true,.05);assert.equal(y,-6.7);for(let i=0;i<200;i++)y=spinoHeight(y,-9,false,.05);assert.ok(Math.abs(y-.4)<1e-8);
+assert.equal(height(currentZone.x,currentZone.z),-2);assert.equal(diveZone(currentZone.x,currentZone.z).id,'current');assert.ok(seabed(currentZone.x,currentZone.z)<-5);
+const outside={x:-8,y:0,z:89},inside={x:-8,y:0,z:87};assert.equal(currentAllows(outside,inside,null),false);assert.equal(currentAllows(outside,inside,spino),true);assert.equal(currentAllows(inside,outside,null),true);
+const state=normalizeAbilities(),inv={gems:0,stone:0};assert.equal(claimAbilityTreasure(state,inv,'horns',trike),0);assert.equal(claimAbilityTreasure(state,inv,'current',trike),0);assert.equal(claimAbilityTreasure(state,inv,'current',spino),18);assert.equal(claimAbilityTreasure(state,inv,'current',spino),0);
+let saves=0,wall=false;const scene=new T.Scene(),world=createAbilityWorld({scene,state,ground:(x,z)=>height(x,z)+.5,blocked:()=>wall,inv,save:()=>saves++,message(){},sound(){}}),ground=height(rockPassage.x,rockPassage.z)+.5,pos=new T.Vector3(rockPassage.x,ground+1.65,rockPassage.z+4);
+assert.equal(world.blocksMove(rockPassage.x,pos.y,rockPassage.z),true);assert.equal(world.crush(raptor,pos,0),false);assert.equal(world.crush(trike,pos,Math.PI),false);wall=true;assert.equal(world.crush(trike,pos,0),false);wall=false;assert.equal(world.crush(trike,pos,0),true);assert.equal(inv.stone,6);assert.equal(world.crush(trike,pos,0),false);assert.equal(inv.stone,6);assert.equal(world.blocksMove(rockPassage.x,pos.y,rockPassage.z),false);assert.equal(claimAbilityTreasure(state,inv,'horns',null),12);assert.equal(inv.gems,30);assert.deepEqual(normalizeAbilities(JSON.parse(JSON.stringify(state))),state);assert.equal(saves,1);
+console.log('PASS: adult/tamed abilities, sprint duration/cooldown/owner, swimming depth and ascent, current entry/escape, facing and blocked rock strike, persistent opening and unique treasure rewards.');

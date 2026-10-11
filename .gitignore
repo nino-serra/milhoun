@@ -1,0 +1,16 @@
+node_modules/
+.env
+.env.*
+!.env.example
+.openai/
+dist/.openai/
+*.zip
+*.tar.gz
+*.apk
+*.aab
+*.jks
+*.keystore
+milhoun-partie*.json
+*save-backup*.json
+coverage/
+*.log

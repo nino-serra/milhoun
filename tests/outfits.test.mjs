@@ -1,0 +1,8 @@
+import assert from 'node:assert/strict';
+import * as T from '../dist/vendor/three.module.js';
+import {normalizePlayer} from '../dist/player.js';
+import {hairStyles,tops,bottoms,choosePlayerLook,syncOutfits,unlockOutfit,normalizeOutfits} from '../dist/outfits.js';
+import {createPlayerAvatar} from '../dist/player-model.js';
+const old=normalizePlayer({color:'#ec9360',owned:['hat'],accessory:'hat'});assert.equal(old.color,'#ec9360');assert.equal(old.accessory,'hat');assert.equal(old.hair,'short');assert.equal(old.bottom,'jeans');assert.equal(hairStyles.length,5);assert.equal(tops.length,5);assert.equal(bottoms.length,5);assert.equal(choosePlayerLook(old,'top','crystal'),false);assert.equal(syncOutfits(old,{crystal:true,safari:true}),true);assert.equal(syncOutfits(old,{crystal:true,safari:true}),false);assert.equal(choosePlayerLook(old,'top','crystal'),true);assert.equal(unlockOutfit(old,'ruins'),true);assert.equal(choosePlayerLook(old,'bottom','ruins'),true);assert.equal(unlockOutfit(old,'ruins'),false);assert.deepEqual(normalizePlayer(JSON.parse(JSON.stringify(old))),old);assert.equal(normalizeOutfits({top:'crystal'}).top,'tee');
+for(const hair of hairStyles)for(const top of tops){const state=normalizePlayer({owned:['crystal','safari'],hair:hair.id,top:top.id}),model=createPlayerAvatar(state);model.refresh();model.g.updateMatrixWorld(true);assert.ok(new T.Box3().setFromObject(model.g).max.y>1.6);assert.ok(model.g.children.some(o=>o.position.z<-.18),'Face must be visible at the front');}
+console.log('PASS: five hair/top/bottom choices, old save cosmetics preserved, locked outfits, one-time unlocks, look save roundtrip and visible face/model variants.');

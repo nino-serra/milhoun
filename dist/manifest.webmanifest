@@ -1,0 +1,17 @@
+{
+  "id": "./",
+  "name": "Milhoun — L’île des dinos",
+  "short_name": "Milhoun",
+  "description": "Construis, explore et apprivoise des dinosaures sur l’île de Milhoun.",
+  "lang": "fr-FR",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "landscape",
+  "theme_color": "#123c35",
+  "background_color": "#9bd8e5",
+  "icons": [
+    { "src": "icon-192.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" },
+    { "src": "icon-512.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+  ]
+}

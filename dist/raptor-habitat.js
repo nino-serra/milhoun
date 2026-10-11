@@ -1,0 +1,2 @@
+export function raptorPlainHeight(x,z){const d=Math.hypot((x-143)/27,(z+71)/24);return d>=1||Math.hypot(x*.95,z)>=181?-2:Math.min(2,Math.floor((1-d)*9));}
+export const raptorSpawns=[{id:'raptor-a',x:141,z:-74,index:9},{id:'raptor-b',x:145,z:-76,index:9},{id:'raptor-c',x:149,z:-69,index:9},...[[135,-70],[137,-78],[142,-65],[150,-79],[154,-72],[148,-61],[110,37],[116,45],[104,-6],[66,-61]].map(([x,z],i)=>({id:'proto-'+i,x,z,index:10}))];

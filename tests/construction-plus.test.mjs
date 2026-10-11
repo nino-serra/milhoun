@@ -1,0 +1,4 @@
+import assert from 'node:assert/strict';import {catalog,recipes,roofItems,stairItems,rotatable,placedType,itemType,blockTop,craft,spendBlock} from '../dist/building.js';
+for(const id of [...roofItems,...stairItems]){assert.ok(rotatable(id));for(let r=0;r<4;r++){const t=placedType(id,r);assert.equal(itemType(t),id);assert.ok(Number.isFinite(blockTop({type:t,x:0,y:2,z:0},.2,.2)));}}
+for(const id of roofItems.slice(0,3)){assert.ok(blockTop({type:id+'0',x:0,y:2,z:0},0,-.4)>blockTop({type:id+'0',x:0,y:2,z:0},0,.4));}
+assert.equal(blockTop({type:'stoneSlab',y:2},0,0),2);for(const id of ['tileRoof','brickStairs','pillar']){const inv={wood:9,stone:9,sand:9,berries:9},r=recipes.find(r=>r.out===id);assert.ok(craft(inv,r));assert.ok(spendBlock(inv,id));}assert.equal(new Set(catalog.map(c=>c.id)).size,catalog.length);console.log('PASS extra construction recipes, rotations, roof heights and recovery item IDs');
